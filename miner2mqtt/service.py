@@ -14,7 +14,7 @@ async def scan_miners(subnet):
     miners = await network.scan()
     return miners
 
-miners = asyncio.run(scan_miners("192.168.178.0/24"))
+miners = asyncio.run(scan_miners(data["miner_subnet"]))
 
 async def stop_mining(miner):
     print("[{}] stop mining".format(miner))
