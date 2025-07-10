@@ -20,8 +20,7 @@ The addon will post discovery topics for homeassistant configuration.
 ## Known Issues
 **This is in early development** There are known issues!
 
-- The addon will scan the subnet for miners but only start a handler process for the first of them. I only have one miner so concurrent operation will likely remain untested for a while.
-- The miner should be running while the addon is started or restarted. Periodic auto-discovery is not yet implemented.
+- I only have one miner so concurrent operation will likely remain untested for a while.
 - Currently only the following features of the miner are implemented. It is planned to implement all features of the base miner class of `pyasic` in the very near future.
   - Enable switch with status feedback
   - Wattage sensor
