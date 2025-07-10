@@ -4,6 +4,10 @@ import paho.mqtt.client as mqtt
 import asyncio
 from pyasic import get_miner
 from pyasic.network import MinerNetwork
+import logging
+logging.getLogger("root").setLevel(logging.INFO)
+logging.getLogger("httpx").setLevel(logging.WARN)
+
 
 # Open and read the JSON file
 with open('data/options.json', 'r') as file:
@@ -17,15 +21,15 @@ async def scan_miners(subnet):
 miners = asyncio.run(scan_miners(data["miner_subnet"]))
 
 async def stop_mining(miner):
-    print("[{}] stop mining".format(miner))
+    logging.info("[{}] stop mining".format(miner))
     await miner.stop_mining()
 
 async def resume_mining(miner):
-    print("[{}] resume mining".format(miner))
+    logging.info("[{}] resume mining".format(miner))
     await miner.resume_mining()
 
 def on_connect(client, userdata, flags, rc):
-    print("[MQTT] connected with result code", rc)
+    logging.info("[MQTT] connected with result code {}".format(rc))
     client.subscribe("miners/+/command")
 
 async def find_miner_by_mac(mac):
@@ -53,13 +57,13 @@ mqttc.on_connect = on_connect
 mqttc.on_message = on_message
 mqttc.username_pw_set(username=data["mqtt_user"], password=data["mqtt_password"])
 
-print("[MQTT] connecting")
+logging.info("[MQTT] connecting")
 mqttc.connect(data["mqtt_server"], data["mqtt_port"], 60)
 
 async def loop_func(miner):
     mac = await miner.get_mac()
     uuid = "miner_" + mac.replace(":","")
-    print("[{}] loop started".format(miner))
+    logging.info("[{}] loop started".format(miner))
     while 1:
         hashrate = await miner.get_hashrate()
         if not hashrate == None:
@@ -76,7 +80,7 @@ async def publish_discovery(miner):
     mfr = miner.make
     model = await miner.get_model()
     uuid = "miner_" + mac.replace(":","")
-    print("[{}] publishing HA discovery".format(miner))
+    logging.info("[{}] publishing HA discovery".format(miner))
 
     common_dict = {
         "device": {
@@ -122,7 +126,6 @@ async def publish_discovery(miner):
     mqttc.publish("homeassistant/sensor/{}/config".format(uuid + "_wattage"),"{}".format(json.dumps(common_dict | wattage_dict)),qos=1,retain=True)
 
 mqttc.loop_start()
-
 asyncio.run(publish_discovery(miners[0]))
 asyncio.run(loop_func(miners[0]))
 mqttc.loop_stop()
