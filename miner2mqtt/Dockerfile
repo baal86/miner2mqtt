@@ -7,6 +7,8 @@ RUN apk add --no-cache py3-paho-mqtt
 RUN pip install --break-system-packages pyasic
 
 COPY service.py /
+COPY discovery.py /
+COPY polling.py /
 RUN chmod a+x /service.py
 
 CMD ["python3","/service.py"]
