@@ -29,7 +29,7 @@ async def main():
         discovery.task(procdata),
         polling.task(procdata),
         command.task(procdata)
-        )
+    )
 
 asyncio.run(main())
 
