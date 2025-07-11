@@ -13,7 +13,8 @@ async def task(procdata):
                                     password = procdata["password"],
                                     ) as client:  
                 while 1:
-                    logging.info("Polling")
+                    logging.debug("Polling")
+
                     async with procdata["lock"]:
                         for miner in procdata["miners"]:
                             mac = await miner.get_mac()

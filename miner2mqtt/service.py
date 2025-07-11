@@ -1,11 +1,9 @@
 import json
-import paho.mqtt.client as mqtt
 import asyncio
-from pyasic import get_miner
-from pyasic.network import MinerNetwork
 import logging
 import discovery
 import polling
+import command
 logging.getLogger("root").setLevel(logging.INFO)
 logging.getLogger("httpx").setLevel(logging.WARN)
 
@@ -26,43 +24,12 @@ procdata = {
         "subnet": data["miner_subnet"]
     }
 
-async def stop_mining(miner):
-    logging.info("[{}] stop mining".format(miner))
-    await miner.stop_mining()
-
-async def resume_mining(miner):
-    logging.info("[{}] resume mining".format(miner))
-    await miner.resume_mining()
-
-def on_connect(client, userdata, flags, rc):
-    logging.info("[MQTT] connected with result code {}".format(rc))
-    client.subscribe("miners/+/command")
-
-async def find_miner_by_mac(mac):
-    async with procdata["lock"]:
-        for miner in procdata["miners"]:
-            lmac = await miner.get_mac()
-            lmac = lmac.replace(":","")
-            if mac == lmac:
-                return miner
-        return None
-
-def on_message(client, userdata, msg):
-    tok = msg.topic.split("/")
-    name = [t for t in tok if "miner_" in t][0]
-    mac = name.split("_")[1]
-    miner = asyncio.run(find_miner_by_mac(mac))
-    if msg.payload == b'stop':
-        asyncio.run(stop_mining(miner))
-    if msg.payload == b'resume':
-        asyncio.run(resume_mining(miner))
-
-
 async def main():
     await asyncio.gather(
         discovery.task(procdata),
-        polling.task(procdata)
-        )
+        polling.task(procdata),
+        command.task(procdata)
+    )
 
 asyncio.run(main())
 

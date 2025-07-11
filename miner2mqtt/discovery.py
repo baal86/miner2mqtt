@@ -1,5 +1,4 @@
 import asyncio
-from pyasic import get_miner
 from pyasic.network import MinerNetwork
 import logging
 import aiomqtt

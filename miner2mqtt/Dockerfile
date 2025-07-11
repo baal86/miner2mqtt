@@ -10,6 +10,7 @@ RUN pip install --break-system-packages aiomqtt
 COPY service.py /
 COPY discovery.py /
 COPY polling.py /
+COPY command.py /
 RUN chmod a+x /service.py
 
 CMD ["python3","/service.py"]
