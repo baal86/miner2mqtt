@@ -64,7 +64,7 @@ async def publish_discovery(client,miner,prefix):
 
 async def task(procdata):
     while 1:
-        logging.info("Discovering")
+        logging.debug("Discovering")
         async with procdata["lock"]:
             procdata["miners"] = await scan_miners(procdata["subnet"])
             async with aiomqtt.Client(
