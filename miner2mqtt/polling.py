@@ -21,12 +21,12 @@ async def task(procdata):
                             pf = procdata["prefix"]
                             hashrate = await miner.get_hashrate()
                             if not hashrate == None:
-                                client.publish(pf + uuid + "/hashrate",payload="{:.3f}".format(hashrate.rate))
+                                await client.publish(pf + uuid + "/hashrate",payload="{:.3f}".format(hashrate.rate))
                             wattage = await miner.get_wattage()
                             if not wattage == None:
-                                client.publish(pf + uuid + "/wattage",payload="{:.3f}".format(wattage))
+                                await client.publish(pf + uuid + "/wattage",payload="{:.3f}".format(wattage))
                             is_mining = await miner.is_mining()
-                            client.publish(pf + uuid + "/is_mining",payload="{}".format(is_mining))
+                            await client.publish(pf + uuid + "/is_mining",payload="{}".format(is_mining))
                     await asyncio.sleep(2)
         except aiomqtt.MqttError:
             logging.ERROR(f"Connection lost; Reconnecting in 3 seconds ...")
