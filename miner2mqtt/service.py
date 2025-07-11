@@ -18,8 +18,12 @@ with open('data/options.json', 'r') as file:
 procdata = {
         "lock": lock, 
         "miners": [],
-        "mqtt": None,
-        "prefix": data["mqtt_prefix"]
+        "prefix": data["mqtt_prefix"],
+        "server": data["mqtt_server"],
+        "port": data["mqtt_port"],
+        "user": data["mqtt_user"],
+        "password": data["mqtt_password"],
+        "subnet": data["miner_subnet"]
     }
 
 async def stop_mining(miner):
@@ -53,21 +57,12 @@ def on_message(client, userdata, msg):
     if msg.payload == b'resume':
         asyncio.run(resume_mining(miner))
 
-mqttc = mqtt.Client()
-procdata["mqtt"] = mqttc
-mqttc.on_connect = on_connect
-mqttc.on_message = on_message
-mqttc.username_pw_set(username=data["mqtt_user"], password=data["mqtt_password"])
-mqttc.connect(data["mqtt_server"], data["mqtt_port"], 60)
-logging.info("[MQTT] connecting")
 
 async def main():
-    mqttc.loop_start()
     await asyncio.gather(
-        discovery.task(procdata,data["miner_subnet"]),
+        discovery.task(procdata),
         polling.task(procdata)
         )
-    mqttc.loop_stop()
 
 asyncio.run(main())
 
