@@ -63,7 +63,7 @@ async def publish_discovery(mqttc,miner,prefix):
 
 async def task(procdata,subnet):
     while 1:
-        logging.info("Discovering")
+        logging.debug("Discovering")
         async with procdata["lock"]:
             procdata["miners"] = await scan_miners(subnet)
             for miner in procdata["miners"]:
