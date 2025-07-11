@@ -1,6 +1,6 @@
 name: "Miner 2 MQTT"
 description: "Interface bitcoin miner ASICs to MQTT"
-version: "1.0.11"
+version: "1.0.12"
 slug: "miner2mqtt"
 init: false
 arch:
