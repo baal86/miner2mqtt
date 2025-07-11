@@ -4,7 +4,7 @@ from discovery import miners
 
 async def task(procdata):
     while 1:
-        logging.info("Polling")
+        logging.debug("Polling")
         async with procdata["lock"]:
             mqttc = procdata["mqtt"]
             for miner in procdata["miners"]:
