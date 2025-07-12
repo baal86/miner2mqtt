@@ -2,6 +2,9 @@ import aiomqtt
 import logging
 import asyncio
 
+class MinerNotFoundException(Exception):
+    pass
+
 async def stop_mining(procdata,miner):
     logging.info("[{}] stop mining".format(miner))
     async with procdata["lock"]:
@@ -19,8 +22,7 @@ async def find_miner_by_mac(procdata,mac):
             lmac = lmac.replace(":","")
             if mac == lmac:
                 return miner
-        return None
-
+        raise MinerNotFoundException()
 
 async def task(procdata):
     while 1:
@@ -36,13 +38,16 @@ async def task(procdata):
                     tok = str(message.topic).split("/")
                     name = [t for t in tok if "miner_" in t][0]
                     mac = name.split("_")[1]
-                    miner = await find_miner_by_mac(procdata,mac)
-                    if message.payload == b'stop':
-                        await stop_mining(procdata,miner)
-                    if message.payload == b'resume':
-                        await resume_mining(procdata,miner)
+                    try:
+                        miner = await find_miner_by_mac(procdata,mac)
+                        if message.payload == b'stop':
+                            await stop_mining(procdata,miner)
+                        if message.payload == b'resume':
+                            await resume_mining(procdata,miner)
+                    except MinerNotFoundException:
+                        logging.ERROR("Miner {} not online.".format(mac))
         except aiomqtt.MqttError:
-            logging.ERROR(f"Connection lost; Reconnecting in 3 seconds ...")
+            logging.ERROR("Connection lost; Reconnecting in 3 seconds ...")
             await asyncio.sleep(3)
 
 
